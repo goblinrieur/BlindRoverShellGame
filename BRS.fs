@@ -24,78 +24,135 @@ variable rocky
 time&date  * + - * * (rnd) ! \ seed
 100 battery !
 
-: rnd ( -- n)
-    (rnd) @ dup 13 lshift xor
-    dup 17 rshift xor
-    dup DUP 5 lshift xor (rnd) !
 
-; 
-: 10rnd rnd begin dup 0 < IF -1 * THEN
- 10 / dup 10 < UNTIL got ! 
-; 
-: 100rnd rnd begin dup 0 < IF -1 * THEN
- 10 / dup 100 < UNTIL got ! 
-; 
-: 1000rnd rnd begin 
+\ randomize & random functions
+: rnd ( -- n)
+	(rnd) @ dup 13 lshift xor
+	dup 17 rshift xor
+	dup DUP 5 lshift xor (rnd) !
+;
+ 
+: 10rnd 
+	rnd begin dup 0 < IF -1 * THEN
+	10 / dup 10 < UNTIL got ! 
+;
+ 
+: 100rnd 
+	rnd begin dup 0 < IF -1 * THEN
+	10 / dup 100 < UNTIL got ! 
+;
+ 
+: 1000rnd 
+	rnd begin 
 	dup 0 < IF -1 * THEN
 	10 / dup 1000 < UNTIL got ! 
-; 
-\ randomize & random functions
-: energiedec >R battery @ R> - battery ! 
 ;
-: detectmapborder xpos @ mapxsize @ > IF ." ROBOT IS LOST : YOU LOOSE" CR bye THEN
-		xpos @ 0 < IF ." ROBOT IS LOST : : YOU LOOSE" CR bye THEN
-		ypos @ 0 < IF ." ROBOT IS LOST : : YOU LOOSE" CR bye THEN
-		ypos @ mapysize @ > IF ." ROBOT IS LOST : : YOU LOOSE" CR bye THEN
-		 1 energiedec 
+ 
+: energiedec 
+	>R battery @ R> - battery ! 
 ;
-: where xpos @ ." X : " . ypos @ ." Y : " . CR detectmapborder 1 energiedec 
+
+\ functions for map management and user actions
+: detectmapborder 
+	xpos @ mapxsize @ > IF ." ROBOT IS LOST : YOU LOOSE" CR bye THEN
+	xpos @ 0 < IF ." ROBOT IS LOST : : YOU LOOSE" CR bye THEN
+	ypos @ 0 < IF ." ROBOT IS LOST : : YOU LOOSE" CR bye THEN
+	ypos @ mapysize @ > IF ." ROBOT IS LOST : : YOU LOOSE" CR bye THEN
+	1 energiedec 
 ;
-: wait  MS where 
+
+: where 
+	xpos @ ." X : " . ypos @ ." Y : " . CR detectmapborder 1 energiedec 
 ;
-: pause 10000 MS 
+
+: wait  
+	MS where 
 ;
-: batterystatus battery @ dup ." BATTERY STATE :" . ." %" CR 1 < IF ." ERROR BATTERY EMPTY : YOU LOOSE !" CR bye THEN
-	 1 energiedec 
+
+: pause 
+	10000 MS 
 ;
-: solarpaneldeploy ." .DEPLOYING CHARGING PANEL. " 80 0 DO ." ." 250 MS LOOP CR 1 solarflag ! 
+
+: batterystatus 
+	battery @ dup ." BATTERY STATE :" . ." %" CR 1 < IF ." ERROR BATTERY EMPTY : YOU LOOSE !" CR bye THEN
+	1 energiedec 
 ;
+
+: solarpaneldeploy 
+	." .DEPLOYING CHARGING PANEL. " 
+	80 0 DO 
+		." ." 250 MS 
+	LOOP CR 1 solarflag ! 
+;
+
 : solarcapture 
-		solarflag @ 0 = IF CR ." ERROR : solarpanel not deployed" CR ELSE
+	solarflag @ 
+	0 = IF 
+		CR ." ERROR : solarpanel not deployed" CR 
+	ELSE
 		CR ." CHARGING PLEASE WAIT "  pause
-		battery @ 100 < IF 
+		battery @ 
+		100 < IF 
 			BEGIN
 				battery @ 30 < IF 
 					BEGIN
 						battery @ 3 + battery ! ." ."  battery @ . ." %.." 500 MS
-					battery @ 35 > UNTIL
-				THEN
-				battery @ 50 < IF 
-					BEGIN
-						battery @ 2 + battery ! ." ."  battery @ . ." %.." 800 MS
-					battery @ 87 > UNTIL
-				THEN
-				battery @ 1+ battery !
-				." ." battery @ . ." %.." 1500 MS
+						battery @ 35 > UNTIL
+					THEN
+					battery @ 50 < IF 
+						BEGIN
+							battery @ 2 + battery ! ." ."  battery @ . ." %.." 800 MS
+							battery @ 87 
+						> UNTIL
+					THEN
+					battery @ 1+ battery !
+					." ." battery @ . ." %.." 1500 MS
 			battery @ 100 = UNTIL
 			pause
 		THEN
-	 CR 
+		CR 
 		battery @ 100 > IF 
 			pause
 			100 battery !
 		THEN
-	 CR ." you may retract solar panel now : solarpaneloff command" CR THEN 
+	CR ." you may retract solar panel now : solarpaneloff command" CR 
+	THEN 
 ;
-: solarpaneloff solarflag @ 1 = IF ." .STOPPING CHARGING PANEL. " 80 0 DO ." ." 250 MS LOOP 0 solarflag ! CR ELSE
-	0 solarflag ! THEN
- 
+
+: solarpaneloff 
+	solarflag @ 
+	1 = IF 
+		." .STOPPING CHARGING PANEL. " 
+		80 0 DO 
+			." ." 250 MS 
+		LOOP 0 solarflag ! CR 
+	ELSE
+		0 solarflag ! 
+	THEN
+ ;
+
+: armdeploy 
+	armflag @ 
+	1 = if 
+		." already deployed" CR 
+        else ." .ARM DEPLOYING. " 
+		80 0 DO 
+			." ." 250 MS 
+		LOOP 
+		CR 1 armflag ! battery @ 4 - battery ! 1 armflag ! 
+	THEN
 ;
-: armdeploy armflag @ 1 = if ." already deployed" CR else ." .ARM DEPLOYING. " 80 0 DO ." ." 250 MS LOOP CR 1 armflag ! battery @ 4 - battery ! 1 armflag ! THEN
- 
-;
-: armoff armflag @ 0 = if ." already retracted" CR else ." .ARM RETRACTION. " 80 0 DO ." ." 250 MS LOOP CR 0 armflag ! battery @ 4 - battery ! THEN
- 
+
+: armoff 
+	armflag @ 
+	0 = if 
+		." already retracted" CR 
+	    else ." .ARM RETRACTION. " 
+          	80 0 DO 
+			." ." 250 MS 
+		LOOP 
+	    CR 0 armflag ! battery @ 4 - battery ! 
+	THEN
 ;
 
 : catchobject 
@@ -115,53 +172,89 @@ time&date  * + - * * (rnd) ! \ seed
 		." arm not deployed" CR ." energy consumtion HIGH"  battery @ 10 - battery !
 	THEN
 ;
-: captureobject armflag @ 1 = IF ." TRYING TO CATCH OBJECT" CR catchobject ELSE
-			." ARM FAILURE : CANNOT USE ARM" CR THEN
-		battery @ 5 - battery ! 
+
+: captureobject 
+	armflag @ 
+	1 = IF 
+		." TRYING TO CATCH OBJECT" CR catchobject 
+	ELSE
+		." ARM FAILURE : CANNOT USE ARM" CR 
+	THEN
+	battery @ 5 - battery ! 
 ;
-: reset CR CR ." REBOOT : " 64 0 DO ." .." 75 MS  LOOP CR 
+
+: reset 
+	CR CR ." REBOOT : " 64 0 DO ." .." 75 MS  LOOP CR 
 ;
-: checkmove solarflag @ 1 = IF ." cannot move please retract solarpanner " cr 
+
+: checkmove 
+	solarflag @ 
+	1 = IF ." cannot move please retract solarpanner " cr 
 		rnd 100rnd got @ MS ." automatic retractation : battery consumtion is high" CR
-		solarpaneloff battery @ 10 - battery ! then
-            armflag @ 1 = IF ." cannot move please retract arm " cr 
+		solarpaneloff battery @ 10 - battery ! 
+	then
+	armflag @ 
+	1 = IF ." cannot move please retract arm " cr 
 		rnd 100rnd got @ MS ." automatic retractation : battery consumtion is high" CR
-		armoff battery @ 10 - battery ! then
-	    battery @ 25 < if ." battery low" CR then
-	    battery @ 0 < if ." ROBOT LOST : too low battery" CR BYE then
+		armoff battery @ 10 - battery ! 
+	then
+	battery @ 25 < if ." battery low" CR then
+	battery @ 0 < if ." ROBOT LOST : too low battery" CR BYE then
 ;
-: north checkmove ypos @ 1 + ypos ! 4000 ." .moving. " wait 2 energiedec 
-; 
-: south checkmove ypos @ 1 - ypos ! 4000 ." .moving. " wait 2 energiedec 
+
+: north 
+	checkmove ypos @ 1 + ypos ! 4000 ." .moving. " wait 2 energiedec 
 ;
-: east checkmove xpos @ 1 + xpos ! 4000 ." .moving. " wait 2 energiedec 
+ 
+: south 
+	checkmove ypos @ 1 - ypos ! 4000 ." .moving. " wait 2 energiedec 
 ;
-: west checkmove xpos @ 1 - xpos ! 4000 ." .moving. " wait 2 energiedec 
+
+: east 
+	checkmove xpos @ 1 + xpos ! 4000 ." .moving. " wait 2 energiedec 
 ;
-: northeast north east 4000 ." .moving. " wait 1 energiedec 
+
+: west 
+	checkmove xpos @ 1 - xpos ! 4000 ." .moving. " wait 2 energiedec 
 ;
-: southeast east south 4000 ." .moving. " wait 1 energiedec 
-; 
-: southwest south west 4000 ." .moving. " wait 1 energiedec 
+
+: northeast 
+	north east 4000 ." .moving. " wait 1 energiedec 
 ;
-: northwest west north 4000 ." .moving. " wait 1 energiedec 
+
+: southeast 
+	east south 4000 ." .moving. " wait 1 energiedec 
 ;
-: ping CR ." PING ?" CR 5 0 DO 1000rnd got @ dup MS dup 0 = IF ." SIGNAL LOST" bye THEN
- . ."  ms"  CR 750 MS LOOP 
+ 
+: southwest 
+	south west 4000 ." .moving. " wait 1 energiedec 
 ;
+
+: northwest 
+	west north 4000 ." .moving. " wait 1 energiedec 
+;
+
+: ping CR ." PING ?" CR 
+	5 0 DO 1000rnd got @ dup MS dup 
+		0 = IF ." SIGNAL LOST" bye THEN
+		. ."  ms"  CR 750 MS 
+	LOOP 
+;
+
 : help
-  ." you can use north east west south and diags to move" CR
-  ." you can use ping transmit armdeploy armoff solarpaneldeploy solarpaneloff" CR
-  ." you can reboot as reset call help with help command" CR
-  ." you can use where batterystatus solarcapture wait and pause" CR CR
-  ." you may find alien to capture him & a rock before extracting" CR CR CR
-  ." when objectives are made, find extraction point & extract" CR CR
-  ." n, w, e ,s, nw, se, ad, bs & other shortcuts works" CR CR CR
- ." you may add your own forth instructions to win the game" CR
+	." you can use north east west south and diags to move" CR
+	." you can use ping transmit armdeploy armoff solarpaneldeploy solarpaneloff" CR
+	." you can reboot as reset call help with help command" CR
+	." you can use where batterystatus solarcapture wait and pause" CR CR
+	." you may find alien to capture him & a rock before extracting" CR CR CR
+	." when objectives are made, find extraction point & extract" CR CR
+	." n, w, e ,s, nw, se, ad, bs & other shortcuts works" CR CR CR
+	." you may add your own forth instructions to win the game" CR
 ;
+
 : history
 	page
-	CR CR CR CR CR CR CR CR 
+	5 0 DO CR LOOP
 	ping
 	CR
 	." ROVER IS DETECTING SOMETHING " CR rnd 1000rnd got @ 2* MS
@@ -176,7 +269,9 @@ time&date  * + - * * (rnd) ! \ seed
 	help
 
 ;
-: transmit CR ." Transmission " CR  100rnd got @ 10 * MS ping ." Transmission .." CR 
+
+: transmit 
+	CR ." Transmission " CR  100rnd got @ 10 * MS ping ." Transmission .." CR 
 	alienflag @ rockflag @ = IF 
 		." OK" CR
 		1 transmitflag ! 
@@ -184,6 +279,7 @@ time&date  * + - * * (rnd) ! \ seed
 		." OK BUT NO DATA" CR
 	then
 ;
+
 \ main & final functions 
 : genmap
 	time&date  * + - * * (rnd) ! \ seed
@@ -199,6 +295,7 @@ time&date  * + - * * (rnd) ! \ seed
 	mapxsize @ 10rnd got @ - mapextractionpoint_X !
 	mapysize @ 10rnd got @ - mapextractionpoint_Y !
 ;
+
 : extract 
 	transmitflag @ 1 = if
 		xpos @ mapextractionpoint_X @ = if 
@@ -214,26 +311,30 @@ time&date  * + - * * (rnd) ! \ seed
 		CR ." cannot extract datas : alien or data not found yet or tranmission failed"
 	then
 ;
-: autodestroy CR CR CR ." ...." 10 MS ." ...." 100 MS ." ...." 100 MS ." ...." CR CR
-." B*O*O*M" CR CR CR bye ;
+
+: autodestroy 
+	CR CR CR ." ...." 10 MS ." ...." 100 MS ." ...." 100 MS ." ...." CR CR
+	." B*O*O*M" CR CR CR bye ;
+
 \ few aliases
 : n north ;
 : s south ;
 : e east ;
-: w west ; 
+: w west ;
 : ne northeast ;
 : nw northwest ;
 : se southeast ;
 : sw southwest ;
-: ad autodestroy ; 
+: ad autodestroy ;
 : co captureobject ;
-: ca catchobject ; 
+: ca catchobject ;
 : ad armdeploy ;
-: ao armoff ; 
+: ao armoff ;
 : spo solarpaneloff ;
-: sc solarcapture ; 
-: spd solarpaneldeploy ; 
+: sc solarcapture ;
+: spd solarpaneldeploy ;
 : bs batterystatus ;
+
 \ start game
 genmap
 history
