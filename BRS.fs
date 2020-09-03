@@ -61,6 +61,7 @@ time&date  * + - * * (rnd) ! \ seed
 	1 energiedec 
 ;
 
+\ we need to know our coordonates 
 : where 
 	xpos @ ." X : " . ypos @ ." Y : " . CR detectmapborder 1 energiedec 
 ;
@@ -73,11 +74,13 @@ time&date  * + - * * (rnd) ! \ seed
 	10000 MS 
 ;
 
+\ we need to check often battery state of the rover
 : batterystatus 
 	battery @ dup ." BATTERY STATE :" . ." %" CR 1 < IF ." ERROR BATTERY EMPTY : YOU LOOSE !" CR bye THEN
 	1 energiedec 
 ;
 
+\ we need to deploy solar pannels before charging batteries
 : solarpaneldeploy 
 	." .DEPLOYING CHARGING PANEL. " 
 	80 0 DO 
@@ -129,8 +132,10 @@ time&date  * + - * * (rnd) ! \ seed
 	ELSE
 		0 solarflag ! 
 	THEN
- ;
+; 
 
+
+\ we need functions for the arm of the rover
 : armdeploy 
 	armflag @ 
 	1 = if 
@@ -187,6 +192,7 @@ time&date  * + - * * (rnd) ! \ seed
 	CR CR ." REBOOT : " 64 0 DO ." .." 75 MS  LOOP CR 
 ;
 
+\ is move possible ?
 : checkmove 
 	solarflag @ 
 	1 = IF ." cannot move please retract solarpanner " cr 
@@ -234,6 +240,7 @@ time&date  * + - * * (rnd) ! \ seed
 	west north 4000 ." .moving. " wait 1 energiedec 
 ;
 
+\ fake ping to the rover
 : ping CR ." PING ?" CR 
 	5 0 DO 1000rnd got @ dup MS dup 
 		0 = IF ." SIGNAL LOST" bye THEN
@@ -241,6 +248,7 @@ time&date  * + - * * (rnd) ! \ seed
 	LOOP 
 ;
 
+\ help text for the player
 : help
 	." you can use north east west south and diags to move" CR
 	." you can use ping transmit armdeploy armoff solarpaneldeploy solarpaneloff" CR
@@ -252,6 +260,7 @@ time&date  * + - * * (rnd) ! \ seed
 	." you may add your own forth instructions to win the game" CR
 ;
 
+\ intro text for the player wiht very minimal animation
 : history
 	page
 	5 0 DO CR LOOP
@@ -267,9 +276,9 @@ time&date  * + - * * (rnd) ! \ seed
 	reset
 	." shell HELP can be used" CR
 	help
-
 ;
 
+\ we can transmit data 
 : transmit 
 	CR ." Transmission " CR  100rnd got @ 10 * MS ping ." Transmission .." CR 
 	alienflag @ rockflag @ = IF 
@@ -299,22 +308,24 @@ time&date  * + - * * (rnd) ! \ seed
 : extract 
 	transmitflag @ 1 = if
 		xpos @ mapextractionpoint_X @ = if 
-		ypos @ mapextractionpoint_Y @ = if 
-			CR
-			CR
-			." YOU TRANSMIT DATAS JUST IN TIME BEFORE SIGNAL LOST ! " CR
-			." VICTORY" CR
-			bye
-		then
+			ypos @ mapextractionpoint_Y @ = if 
+				CR
+				CR
+				." YOU TRANSMIT DATAS JUST IN TIME BEFORE SIGNAL LOST ! " CR
+				." VICTORY" CR
+				bye
+			then
 		then
 	else
 		CR ." cannot extract datas : alien or data not found yet or tranmission failed"
 	then
 ;
 
+\ offering suicide to player is always a good idea
 : autodestroy 
 	CR CR CR ." ...." 10 MS ." ...." 100 MS ." ...." 100 MS ." ...." CR CR
-	." B*O*O*M" CR CR CR bye ;
+	." B*O*O*M" CR CR CR bye 
+;
 
 \ few aliases
 : n north ;
@@ -337,4 +348,3 @@ time&date  * + - * * (rnd) ! \ seed
 
 \ start game
 genmap
-history

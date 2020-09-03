@@ -1,5 +1,19 @@
 # blind robot simulator
 
+Idea of the game is to simulate your rover remote control 
+
+even after the attack of an alien who broke cam & mic
+
+you can give instruction authorized of course
+
+but you are also alowed to use your own forth function 
+
+during the game. 
+
+# Can you participate to code & doc ?
+
+With pleasure, yes.
+
 # instructions to pass:
 
 North
