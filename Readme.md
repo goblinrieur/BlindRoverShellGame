@@ -18,6 +18,24 @@ during the game.
 
 With pleasure, yes.
 
+Contact me, _(see below for contact mail)_.
+
+## Can You fork it ? 
+
+Yes, let me know & follow you work :) 
+
+## Using licence ? 
+
+Not at all , not even a free one _(gpl,apache neither others)_
+
+## Contact me :
+
+You can contact me on mail  : [goblinrieur@gmail.com](mailto://goblinrieur@gmail.com)
+
+or join me on  : [discord](https://discord.gg/9szvduB)
+
+[youtube](https://www.youtube.com/channel/UCnsW_UH9vXX-nBe3X-enXYA)
+
 #Special conditions to win:
 
 Player have to both find the rock and the alien first 
@@ -27,6 +45,8 @@ then he goes to the extraction point
 # current state 
 
 Player start with some instructions
+
+The game is usable/playable 
 
 - where
 - wait
