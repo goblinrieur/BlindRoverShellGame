@@ -1,3 +1,4 @@
+#! /usr/local/bin/gforth-fast
 variable solarflag
 variable alienflag
 variable rockflag
@@ -76,7 +77,7 @@ time&date  * + - * * (rnd) ! \ seed
 
 \ we need to check often battery state of the rover
 : batterystatus 
-	battery @ dup ." BATTERY STATE :" . ." %" CR 1 < IF ." ERROR BATTERY EMPTY : YOU LOOSE !" CR bye THEN
+	battery @ dup CR ." BATTERY STATE :" . ." %" CR 1 < IF ." ERROR BATTERY EMPTY : YOU LOOSE !" CR bye THEN
 	1 energiedec 
 ;
 
@@ -88,6 +89,7 @@ time&date  * + - * * (rnd) ! \ seed
 	LOOP CR 1 solarflag ! 
 ;
 
+\ solar energy can grow ?
 : solarcapture 
 	solarflag @ 
 	0 = IF 
@@ -140,7 +142,8 @@ time&date  * + - * * (rnd) ! \ seed
 	armflag @ 
 	1 = if 
 		." already deployed" CR 
-        else ." .ARM DEPLOYING. " 
+        else 
+		." .ARM DEPLOYING. " 
 		80 0 DO 
 			." ." 250 MS 
 		LOOP 
@@ -152,7 +155,8 @@ time&date  * + - * * (rnd) ! \ seed
 	armflag @ 
 	0 = if 
 		." already retracted" CR 
-	    else ." .ARM RETRACTION. " 
+	    else 
+		." .ARM RETRACTION. " 
           	80 0 DO 
 			." ." 250 MS 
 		LOOP 
@@ -208,6 +212,7 @@ time&date  * + - * * (rnd) ! \ seed
 	battery @ 0 < if ." ROBOT LOST : too low battery" CR BYE then
 ;
 
+\ directions for movements
 : north 
 	checkmove ypos @ 1 + ypos ! 4000 ." .moving. " wait 2 energiedec 
 ;
@@ -249,7 +254,7 @@ time&date  * + - * * (rnd) ! \ seed
 ;
 
 \ help text for the player
-: help
+: helper
 	." you can use north east west south and diags to move" CR
 	." you can use ping transmit armdeploy armoff solarpaneldeploy solarpaneloff" CR
 	." you can reboot as reset call help with help command" CR
@@ -275,7 +280,7 @@ time&date  * + - * * (rnd) ! \ seed
 	." WARNING WARNING BLIND MODE ==  /!\ BLIND OK   /!\ " CR CR CR  rnd 1000rnd got @ MS 
 	reset
 	." shell HELP can be used" CR
-	help
+	helper
 ;
 
 \ we can transmit data 
@@ -300,7 +305,9 @@ time&date  * + - * * (rnd) ! \ seed
 		rnd 10rnd got @ 1+ 10rnd got @ 1+ rockx ! rocky !
 		rnd 10rnd got @ 1+ 10rnd got @ 1+ ypos ! xpos !
 		rnd 10rnd got @ 1+ 10rnd got @ 1+ ypiege ! xpiege !
-	mapxsize @ 10 > until mapxsize @ .  ."  " mapysize @ . CR
+		mapxsize @ 
+	10 > until 
+	mapxsize @ .  ."  " mapysize @ . CR
 	mapxsize @ 10rnd got @ - mapextractionpoint_X !
 	mapysize @ 10rnd got @ - mapextractionpoint_Y !
 ;
@@ -323,8 +330,20 @@ time&date  * + - * * (rnd) ! \ seed
 
 \ offering suicide to player is always a good idea
 : autodestroy 
-	CR CR CR ." ...." 10 MS ." ...." 100 MS ." ...." 100 MS ." ...." CR CR
-	." B*O*O*M" CR CR CR bye 
+	CR CR CR ." ...." 10 MS ." ...." 100 MS ." ...." 
+	100 MS ." ...." CR CR ." B*O*O*M" CR CR CR bye 
+;
+
+: help
+	CR CR 
+	." Use shortcuts n,s,e,w,ne,nw,se,sw for movments" CR
+	." Use shortcuts ad to autodestroy if needed" CR
+	." Use shortcuts co,ca  catch object vs capture object" CR
+	." Use shortcuts ad,ao  armdeploy , armoff" CR
+	." Use shortcuts spo,sc,spd solarpaneloff, solarcapture& solarpaneldeploy" CR
+	." Use shortcuts bs for batterystatus" CR
+	CR 
+	helper
 ;
 
 \ few aliases
@@ -336,7 +355,7 @@ time&date  * + - * * (rnd) ! \ seed
 : nw northwest ;
 : se southeast ;
 : sw southwest ;
-: ad autodestroy ;
+: ady autodestroy ;
 : co captureobject ;
 : ca catchobject ;
 : ad armdeploy ;
