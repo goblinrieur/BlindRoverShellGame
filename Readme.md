@@ -12,7 +12,7 @@ during the game.
 
 ## a party will look like that in terminal : 
 
-![screenshot](src/screen.png)
+![screenshot](https://github.com/goblinrieur/BlindRoverShellGame/blob/master/scr/screen.png)
 
 # Can you participate to code & doc ?
 
