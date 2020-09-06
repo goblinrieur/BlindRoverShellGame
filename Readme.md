@@ -12,24 +12,7 @@ during the game.
 
 ## a party will look like that in terminal : 
 
-```
-  ok
-where X : 2 Y : 3 
- ok
-s .moving. X : 2 Y : 2 
- ok
-se .moving. X : 3 Y : 2 
-.moving. X : 3 Y : 1 
-.moving. X : 3 Y : 1 
- ok
-batterystatus  BATTERY STATE :83 %
- ok
-w .moving. X : 2 Y : 1 
- ok
-batterystatus  BATTERY STATE :78 %
- ok
-```
-
+![screenshot](src/screen.png)
 
 # Can you participate to code & doc ?
 
