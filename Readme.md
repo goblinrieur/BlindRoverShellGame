@@ -36,7 +36,7 @@ or join me on  : [discord](https://discord.gg/9szvduB)
 
 [youtube](https://www.youtube.com/channel/UCnsW_UH9vXX-nBe3X-enXYA)
 
-#Special conditions to win:
+# Special conditions to win:
 
 Player have to both find the rock and the alien first 
 
