@@ -28,23 +28,23 @@ time&date  * + - * * (rnd) ! \ seed
 
 \ randomize & random functions
 : rnd ( -- n)
-	(rnd) @ dup 13 lshift xor
-	dup 17 rshift xor
-	dup DUP 5 lshift xor (rnd) !
+	(rnd) @ dup 13 lshIFt xor
+	dup 17 rshIFt xor
+	dup DUP 5 lshIFt xor (rnd) !
 ;
  
 : 10rnd 
-	rnd begin dup 0 < IF -1 * THEN
+	rnd BEGIN dup 0 < IF -1 * THEN
 	10 / dup 10 < UNTIL got ! 
 ;
  
 : 100rnd 
-	rnd begin dup 0 < IF -1 * THEN
+	rnd BEGIN dup 0 < IF -1 * THEN
 	10 / dup 100 < UNTIL got ! 
 ;
  
 : 1000rnd 
-	rnd begin 
+	rnd BEGIN 
 	dup 0 < IF -1 * THEN
 	10 / dup 1000 < UNTIL got ! 
 ;
@@ -140,9 +140,9 @@ time&date  * + - * * (rnd) ! \ seed
 \ we need functions for the arm of the rover
 : armdeploy 
 	armflag @ 
-	1 = if 
+	1 = IF 
 		." already deployed" CR 
-        else 
+        ELSE 
 		." .ARM DEPLOYING. " 
 		80 0 DO 
 			." ." 250 MS 
@@ -153,9 +153,9 @@ time&date  * + - * * (rnd) ! \ seed
 
 : armoff 
 	armflag @ 
-	0 = if 
+	0 = IF 
 		." already retracted" CR 
-	    else 
+	    ELSE 
 		." .ARM RETRACTION. " 
           	80 0 DO 
 			." ." 250 MS 
@@ -167,16 +167,16 @@ time&date  * + - * * (rnd) ! \ seed
 : catchobject 
 	armflag @ 1 = IF 
 		xpos @ alienx @ = IF 
-			ypos @ alieny @ = IF ." alien catched" 1 alienflag ! cR then
-		then
+			ypos @ alieny @ = IF ." alien catched" 1 alienflag ! cR THEN
+		THEN
 		xpos @ xpiege @ = IF 
-			ypos @ ypiege @ = IF ." IT'S A TRAP"  cR CR CR CR ." CONTACT LOST" CR CR BYE then
-		then
+			ypos @ ypiege @ = IF ." IT'S A TRAP"  cR CR CR CR ." CONTACT LOST" CR CR BYE THEN
+		THEN
 		xpos @ rockx @ = IF 
-			ypos @ rocky @ = IF ." rock catched"  then
-		else
+			ypos @ rocky @ = IF ." rock catched"  THEN
+		ELSE
 			." nothing here"
-		then
+		THEN
 	ELSE
 		." arm not deployed" CR ." energy consumtion HIGH"  battery @ 10 - battery !
 	THEN
@@ -202,14 +202,14 @@ time&date  * + - * * (rnd) ! \ seed
 	1 = IF ." cannot move please retract solarpanner " cr 
 		rnd 100rnd got @ MS ." automatic retractation : battery consumtion is high" CR
 		solarpaneloff battery @ 10 - battery ! 
-	then
+	THEN
 	armflag @ 
 	1 = IF ." cannot move please retract arm " cr 
 		rnd 100rnd got @ MS ." automatic retractation : battery consumtion is high" CR
 		armoff battery @ 10 - battery ! 
-	then
-	battery @ 25 < if ." battery low" CR then
-	battery @ 0 < if ." ROBOT LOST : too low battery" CR BYE then
+	THEN
+	battery @ 25 < IF ." battery low" CR THEN
+	battery @ 0 < IF ." ROBOT LOST : too low battery" CR BYE THEN
 ;
 
 \ directions for movements
@@ -289,9 +289,9 @@ time&date  * + - * * (rnd) ! \ seed
 	alienflag @ rockflag @ = IF 
 		." OK" CR
 		1 transmitflag ! 
-	else
+	ELSE
 		." OK BUT NO DATA" CR
-	then
+	THEN
 ;
 
 \ main & final functions 
@@ -299,33 +299,33 @@ time&date  * + - * * (rnd) ! \ seed
 	time&date  * + - * * (rnd) ! \ seed
 	history
 	." RADAR ON MAP: " 
-	begin
+	BEGIN
 		rnd 10rnd got @ 5 + mapxsize ! mapxsize @ mapysize !
 		rnd 10rnd got @ 1+ 10rnd got @ 1+ alienx ! alieny !
 		rnd 10rnd got @ 1+ 10rnd got @ 1+ rockx ! rocky !
 		rnd 10rnd got @ 1+ 10rnd got @ 1+ ypos ! xpos !
 		rnd 10rnd got @ 1+ 10rnd got @ 1+ ypiege ! xpiege !
 		mapxsize @ 
-	10 > until 
+	10 > UNTIL 
 	mapxsize @ .  ."  " mapysize @ . CR
 	mapxsize @ 10rnd got @ - mapextractionpoint_X !
 	mapysize @ 10rnd got @ - mapextractionpoint_Y !
 ;
 
 : extract 
-	transmitflag @ 1 = if
-		xpos @ mapextractionpoint_X @ = if 
-			ypos @ mapextractionpoint_Y @ = if 
+	transmitflag @ 1 = IF
+		xpos @ mapextractionpoint_X @ = IF 
+			ypos @ mapextractionpoint_Y @ = IF 
 				CR
 				CR
 				." YOU TRANSMIT DATAS JUST IN TIME BEFORE SIGNAL LOST ! " CR
 				." VICTORY" CR
 				bye
-			then
-		then
-	else
+			THEN
+		THEN
+	ELSE
 		CR ." cannot extract datas : alien or data not found yet or tranmission failed"
-	then
+	THEN
 ;
 
 \ offering suicide to player is always a good idea
@@ -337,7 +337,7 @@ time&date  * + - * * (rnd) ! \ seed
 : help
 	CR CR 
 	." Use shortcuts n,s,e,w,ne,nw,se,sw for movments" CR
-	." Use shortcuts ad to autodestroy if needed" CR
+	." Use shortcuts ad to autodestroy IF needed" CR
 	." Use shortcuts co,ca  catch object vs capture object" CR
 	." Use shortcuts ad,ao  armdeploy , armoff" CR
 	." Use shortcuts spo,sc,spd solarpaneloff, solarcapture& solarpaneldeploy" CR
