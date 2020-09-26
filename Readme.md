@@ -76,3 +76,10 @@ The game is usable/playable
 - autodestroy
 
 [code](BRS.fs)
+
+
+# want to play all projects at once 
+
+you can get sources (menu.sh) & run it from a container docker as you wish
+
+https://hub.docker.com/r/francoispussault/gforthgadgets
